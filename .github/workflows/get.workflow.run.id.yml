@@ -1,0 +1,21 @@
+name: Get Workflow RUN URL with run_id and job_id
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  get-run-url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Job ID
+        id: get_job_id
+        run: |
+          job_id=$(curl -s -H "Authorization: token ${{ secrets.GIT_HUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
+            | jq -r '.jobs[] | select(.name == "${{ github.job }}") | .id')
+          echo "::set-output name=job_id::$job_id"
+      - name: Print Workflow URL
+        run: |
+          echo "job_id: ${{ steps.get_job_id.outputs.job_id }}"
+          echo "Workflow URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get_job_id.outputs.job_id }}"
