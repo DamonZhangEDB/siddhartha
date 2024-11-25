@@ -1,0 +1,32 @@
+name: Offboard User
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  offboard_user:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      OWNER_REP: ${{ github.repository }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Echo Environment Variables
+        run: |
+          echo "Issue Number: $ISSUE_NUMBER"
+          echo "Owner/Repo: $OWNER_REP"
+
+      - name: Add comment to issue
+        run: python access_control/add_comment.py
